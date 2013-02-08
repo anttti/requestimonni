@@ -1,5 +1,8 @@
 <?php
 // The name of the log file. Must be writable by the script.
+// Since this script does not have any sort of access control yet it needs
+// to be able to write to that file, it might be wise to place this file
+// in a place not accessable by the world.
 $LOG_FILE_NAME = "monni.log";
 
 // The GET parameter to show the log file
@@ -11,6 +14,13 @@ $LOG_CLEAR_TRIGGER = "clearlog";
 function writelog($str) {
 	global $LOG_FILE_NAME;
 	error_log($str, 3, $LOG_FILE_NAME);
+}
+
+if (!file_exists($LOG_FILE_NAME)) {
+	die("<strong>RequestimonniError:</strong> Log file not found! It should be called " . $LOG_FILE_NAME . ".");
+}
+if (!is_writable($LOG_FILE_NAME)) {
+	die("<strong>RequestimonniError:</strong> Log file is not writable! Please show some chmod love to " . $LOG_FILE_NAME . ".");	
 }
 
 if (isset($_GET[$LOG_DISPLAY_TRIGGER])) :
@@ -57,13 +67,6 @@ if (isset($_GET["log"])) :
 	echo $contents;
 	echo "</pre>";
 else :
-
-if (!file_exists($LOG_FILE_NAME)) {
-	die("<strong>Error:</strong> Log file not found! It should be called " . $LOG_FILE_NAME . ".");
-}
-if (!is_writable($LOG_FILE_NAME)) {
-	die("<strong>Error:</strong> Log file is not writable! Please show some chmod love to " . $LOG_FILE_NAME . ".");	
-}
 
 date_default_timezone_set('Europe/Helsinki');
 writelog("Request captured at " . date('Y-m-d H:i:s') . ":\n");
